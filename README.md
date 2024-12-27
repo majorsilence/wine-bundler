@@ -115,3 +115,27 @@ License
 -------
 
 MIT
+
+
+Docker
+------
+
+build the docker image
+```bash
+./build_docker_image.sh
+```
+
+Use the docker image 
+```bash
+docker run --rm -v /root:/bundler majorsilence/mac_wine_bundler \
+  /wine-bundler \
+  -i /bundler/.wine/drive_c/path/to/application/image.ico \
+  -n "Application Name" \
+  -c en_US.UTF-8 \
+  -w stable \
+  -a win32 \
+  -p /bundler/.wine \
+  -s 'c:\wine\path\to\application.exe'
+```
+
+

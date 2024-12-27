@@ -114,7 +114,21 @@ wine_install () {
   echo "$version" > "$target/version"
 }
 
-png2icns () {
+detect_os() {
+  case "$(uname -s)" in
+    Darwin)
+      OS="mac"
+      ;;
+    Linux)
+      OS="linux"
+      ;;
+    *)
+      error "Unsupported operating system"
+      ;;
+  esac
+}
+
+png2icns_mac() {
   local source="$1"
   local target="$2"
 
@@ -136,6 +150,38 @@ png2icns () {
   iconutil -c icns "$iconset"
 
   rm -rf "$iconset"
+}
+
+png2icns_linux() {
+  local source="$1"
+  local target="$2"
+
+  local iconset="${target%.icns}.iconset"
+
+  mkdir "${iconset}"
+
+  convert "${source}" -resize 16x16 "${iconset}/icon_16x16.png"
+  convert "${source}" -resize 32x32 "${iconset}/icon_16x16@2x.png"
+  convert "${source}" -resize 32x32 "${iconset}/icon_32x32.png"
+  convert "${source}" -resize 64x64 "${iconset}/icon_32x32@2x.png"
+  convert "${source}" -resize 128x128 "${iconset}/icon_128x128.png"
+  convert "${source}" -resize 256x256 "${iconset}/icon_128x128@2x.png"
+  convert "${source}" -resize 256x256 "${iconset}/icon_256x256.png"
+  convert "${source}" -resize 512x512 "${iconset}/icon_256x256@2x.png"
+  convert "${source}" -resize 512x512 "${iconset}/icon_512x512.png"
+  convert "${source}" -resize 1024x1024 "${iconset}/icon_512x512@2x.png"
+
+  icotool -c -o "$target" "${iconset}"/*.png
+
+  rm -rf "$iconset"
+}
+
+png2icns () {
+  if [ "$OS" == "mac" ]; then
+    png2icns_mac "$@"
+  elif [ "$OS" == "linux" ]; then
+    png2icns_linux "$@"
+  fi
 }
 
 ico2any () {
@@ -317,6 +363,16 @@ bundle_build () {
   echo "DONE!"
 }
 
+check_and_create_wine_prefix() {
+  if [ ! -d "$ARG_PREFIX" ]; then
+    echo "Creating wine prefix at $ARG_PREFIX..."
+    WINEARCH="$ARG_ARCH" WINEPREFIX="$ARG_PREFIX" winecfg >/dev/null 2>&1
+    if [ $? -ne 0 ]; then
+      error "Unable to create wine prefix"
+    fi
+  fi
+}
+
 while getopts ":hvls:m:r:n:i:p:w:c:a:" opt; do
   case $opt in
     h)  usage; exit 0 ;;
@@ -334,6 +390,9 @@ while getopts ":hvls:m:r:n:i:p:w:c:a:" opt; do
     \?) error "Option -$OPTARG requires an argument." ;;
   esac
 done
+
+detect_os
+check_and_create_wine_prefix
 
 BUNDLE_NAME="$ARG_NAME"
 BUNDLE_DIR="$BUNDLE_NAME.app"
