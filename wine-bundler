@@ -56,7 +56,8 @@ Options:
                 (defaults to ${ARG_LOCALE})
   -a (arch)     Set specific architecture for wine (win32 or win64)
                 (defaults to ${ARG_ARCH})
-
+  -t (cache)    Set specific cache path
+                (defaults to ${APP_CACHE})
 Description:
 
   Creates macOS application bundle from wine prefix.
@@ -107,7 +108,7 @@ wine_install () {
   local cache="$APP_CACHE/wine-${version}.tar.xz"
   [ ! -e "$cache" ] && wine_fetch "$version"
   mkdir -vp "$target" || error "Unable to create directory"
-  echo "Extracting wine..."
+  echo "Extracting wine... tar -xf \"$cache\" -C \"$target\""
   tar -xf "$cache" -C "$target" || error "Unable to extract wine"
   mv "$target"/Wine*.app/Contents/Resources/wine "$target"/usr
   rm -rf "$target"/Wine*.app
@@ -187,11 +188,11 @@ png2icns () {
 ico2any () {
   local source="$1"
   local target="$2"
-  local frame_number=`identify "$source" | nl | grep PNG | sed -e 's/^ *\([0-9]*\).*$/\1/' | tail -n 1`
+  local frame_number=$(identify "$source" | nl | grep PNG | sed -e 's/^ *\([0-9]*\).*$/\1/' | tail -n 1)
   if [ -z "$frame_number" ]; then
     frame_number=1
   fi
-  frame_index=`echo $frame_number - 1 | bc`
+  frame_index=$(echo "$frame_number - 1" | bc)
   convert "$source[$frame_index]" "$target" \
     || error "Unable to convert image file"
 }
@@ -361,19 +362,34 @@ bundle_build () {
   echo "Touching bundle..."
   bundle_touch
   echo "DONE!"
+
+  chmod -R a+r "$BUNDLE_DIR"
+  echo "Zipping bundle..."
+  cd "$(dirname "$BUNDLE_DIR")" && zip -r "${BUNDLE_NAME}.zip" "$(basename "$BUNDLE_DIR")" > /dev/null
+  echo "Bundle zipped as ${BUNDLE_NAME}.zip"
 }
 
 check_and_create_wine_prefix() {
+  mkdir -p "$ARG_PREFIX" || error "Unable to create wine prefix"
+
   if [ ! -d "$ARG_PREFIX" ]; then
     echo "Creating wine prefix at $ARG_PREFIX..."
-    WINEARCH="$ARG_ARCH" WINEPREFIX="$ARG_PREFIX" winecfg >/dev/null 2>&1
+    if [ "$OS" == "mac" ]; then
+      WINEARCH="$ARG_ARCH" WINEPREFIX="$ARG_PREFIX" "$APP_CACHE/wine-$BUNDLE_WINE/usr/bin/winecfg" >/dev/null 2>&1
+    elif [ "$OS" == "linux" ]; then
+      WINEARCH="win64" WINEPREFIX="$ARG_PREFIX" winecfg >/dev/null 2>&1
+    else
+      error "Unsupported operating system"
+    fi
     if [ $? -ne 0 ]; then
-      error "Unable to create wine prefix"
+      error "Failed to create wine prefix"
     fi
   fi
 }
 
-while getopts ":hvls:m:r:n:i:p:w:c:a:" opt; do
+# ...existing code...
+
+while getopts ":hvls:m:r:n:i:p:w:c:a:t:" opt; do
   case $opt in
     h)  usage; exit 0 ;;
     v)  version; exit 0 ;;
@@ -387,6 +403,7 @@ while getopts ":hvls:m:r:n:i:p:w:c:a:" opt; do
     w)  ARG_WINE="$OPTARG" ;;
     c)  ARG_LOCALE="$OPTARG" ;;
     a)  ARG_ARCH="$OPTARG" ;;
+    t)  APP_CACHE="$OPTARG" ;;
     \?) error "Option -$OPTARG requires an argument." ;;
   esac
 done
@@ -404,6 +421,7 @@ BUNDLE_APP_PROMPT="$ARG_APP_PROMPT"
 BUNDLE_ARCH="$ARG_ARCH"
 BUNDLE_LOCALE="$ARG_LOCALE"
 # Use cache first
+mkdir -p $APP_CACHE
 BUNDLE_WINE=$(ls "$APP_CACHE" \
   | grep '^wine-.*\.tar\.xz$' \
   | sed -e 's/^wine-\(.*\)\.tar\.xz$/\1/' \
@@ -422,6 +440,7 @@ icon:   $BUNDLE_ICON
 prefix: $BUNDLE_PREFIX
 arch:   $BUNDLE_ARCH
 locale: $BUNDLE_LOCALE
+cache:  $APP_CACHE
 
 EOF
 
