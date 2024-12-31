@@ -25,13 +25,17 @@ RUN mkdir -p /opt/majorsilence && apt update \
     && apt install -y winehq-devel winbind cabextract xvfb \
     && chmod +x /opt/majorsilence/wine-bundler \
     && mkdir -p /${WINEPREFIX} \
-    && wget --user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:133.0) Gecko/20100101 Firefox/133.0" -O /opt/majorsilence/windowsdesktop-runtime-8-win-x64.exe https://download.visualstudio.microsoft.com/download/pr/27bcdd70-ce64-4049-ba24-2b14f9267729/d4a435e55182ce5424a7204c2cf2b3ea/windowsdesktop-runtime-8.0.11-win-x64.exe \
-    && winecfg && wineboot -u \
-    && ls -la /opt/majorsilence \
-    && wine /opt/majorsilence/windowsdesktop-runtime-8-win-x64.exe /quiet /install \
-    && wineserver -k \
-    && rm -rf /opt/majorsilence/windowsdesktop-runtime-8-win-x64.exe \
+    && apt-get clean \
     && rm -rf /tmp/* \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+RUN winecfg && wineboot -u \
+    && wineserver -k
+
+RUN wget --user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:133.0) Gecko/20100101 Firefox/133.0" -O /opt/majorsilence/windowsdesktop-runtime-8-win-x64.exe https://download.visualstudio.microsoft.com/download/pr/27bcdd70-ce64-4049-ba24-2b14f9267729/d4a435e55182ce5424a7204c2cf2b3ea/windowsdesktop-runtime-8.0.11-win-x64.exe \
+    && ls -la /opt/majorsilence \
+    && xvfb-run wine /opt/majorsilence/windowsdesktop-runtime-8-win-x64.exe /quiet /install /norestart \& \
+    && sleep 60 \
+    && rm -rf /opt/majorsilence/windowsdesktop-runtime-8-win-x64.exe
     
