@@ -16,7 +16,7 @@ ENV WINEARCH=win64
 RUN mkdir -p /opt/majorsilence && apt update \
     && dpkg --add-architecture i386 \
     && apt update \
-    && apt install -y --no-install-recommends software-properties-common gnupg2 xz-utils zip bc wget curl imagemagick icoutils rsync sed coreutils jq grep \
+    && apt install -y --no-install-recommends software-properties-common gnupg2 icnsutils xz-utils zip bc wget curl imagemagick icoutils rsync sed coreutils jq grep \
     && mkdir -pm755 /etc/apt/keyrings \
     && wget -O /etc/apt/keyrings/winehq-archive.key https://dl.winehq.org/wine-builds/winehq.key \
     && wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/ubuntu/dists/noble/winehq-noble.sources \

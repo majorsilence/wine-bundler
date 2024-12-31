@@ -172,7 +172,7 @@ png2icns_linux() {
   convert "${source}" -resize 512x512 "${iconset}/icon_512x512.png"
   convert "${source}" -resize 1024x1024 "${iconset}/icon_512x512@2x.png"
 
-  icotool -c -o "$target" "${iconset}"/*.png
+  iconutil -c icns "$iconset"
 
   rm -rf "$iconset"
 }
