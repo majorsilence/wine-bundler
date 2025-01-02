@@ -109,7 +109,7 @@ wine_install () {
   [ ! -e "$cache" ] && wine_fetch "$version"
   mkdir -vp "$target" || error "Unable to create directory"
   echo "Extracting wine... tar -xf \"$cache\" -C \"$target\""
-  tar -xf "$cache" -C "$target" || error "Unable to extract wine"
+  tar --warning=no-unknown-keyword -xf "$cache" -C "$target" || error "Unable to extract wine"
   mv "$target"/Wine*.app/Contents/Resources/wine "$target"/usr
   rm -rf "$target"/Wine*.app
   echo "$version" > "$target/version"
@@ -172,8 +172,8 @@ png2icns_linux() {
   convert "${source}" -resize 512x512 "${iconset}/icon_512x512.png"
   convert "${source}" -resize 1024x1024 "${iconset}/icon_512x512@2x.png"
 
-  iconutil -c icns "$iconset"
-
+  icnsutil -c icns -o "$target" "$iconset"
+  
   rm -rf "$iconset"
 }
 
