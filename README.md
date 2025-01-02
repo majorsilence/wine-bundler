@@ -127,15 +127,18 @@ build the docker image
 
 Use the docker image 
 ```bash
-docker run --rm -v /root:/bundler majorsilence/mac_wine_bundler \
+docker run --rm -v /root:/to-bundle majorsilence/mac_wine_bundler:latest \
   /wine-bundler \
-  -i /bundler/.wine/drive_c/path/to/application/image.ico \
+  -i /to-bundle/.wine/drive_c/path/to/application/image.ico \
   -n "Application Name" \
   -c en_US.UTF-8 \
   -w stable \
-  -a win32 \
-  -p /bundler/.wine \
+  -a win64 \
+  -p /to-bundle/.wine \
   -s 'c:\wine\path\to\application.exe'
 ```
 
-
+Example, copy executable from local host to wine folder, then create the app bundle.  Custom cache folder.
+```bash
+docker run --rm -v /mnt/c/Users/USER/APPLICATION-TO-BUNDLE:/to-bundle -v ./:/src majorsilence/mac_wine_bundler:latest bash -c "mkdir -p /opt/majorsilence/wine64/drive_c/app && cp -r /to-bundle/x64/* /opt/majorsilence/wine64/drive_c/app && cd /src/build && /src/wine-bundler -i /to-bundle/icon.ico -n \"MY APP\" -c en_US.UTF-8 -w devel -a win64 -p /opt/majorsilence/wine64 -t /src/build/workingdirectory/.cache -s 'c:\app\MY-APP.exe'"
+```
