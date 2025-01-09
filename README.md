@@ -140,5 +140,5 @@ docker run --rm -v /root:/to-bundle majorsilence/mac_wine_bundler:latest \
 
 Example, copy executable from local host to wine folder, then create the app bundle.  Custom cache folder.
 ```bash
-docker run --rm -v /mnt/c/Users/USER/APPLICATION-TO-BUNDLE:/to-bundle -v ./:/src majorsilence/mac_wine_bundler:latest bash -c "mkdir -p /opt/majorsilence/wine64/drive_c/app && cp -r /to-bundle/x64/* /opt/majorsilence/wine64/drive_c/app && cd /src/build && /src/wine-bundler -i /to-bundle/icon.ico -n \"MY APP\" -c en_US.UTF-8 -w devel -a win64 -p /opt/majorsilence/wine64 -t /src/build/workingdirectory/.cache -s 'c:\app\MY-APP.exe'"
+docker run --rm -v /mnt/c/Users/USER/APPLICATION-TO-BUNDLE:/to-bundle -v ./:/src majorsilence/mac_wine_bundler:latest bash -c "mkdir -p /opt/majorsilence/wine64/drive_c/app && cp -r /to-bundle/x64/* /opt/majorsilence/wine64/drive_c/app && cd /src/build && /src/wine-bundler -i /to-bundle/icon.ico -n \"MY APP\" -c en_US.UTF-8 -w devel -a win64 -p /opt/majorsilence/wine64 -t /src/build/workingdirectory/.cache -s 'c:\app\MY-APP.exe' -m 'MY-APP=c:\app\MY-APP.exe'"
 ```
