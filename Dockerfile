@@ -33,9 +33,9 @@ RUN mkdir -p /opt/majorsilence && apt update \
 RUN winecfg && wineboot -u \
     && wineserver -k
 
-RUN wget --user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:133.0) Gecko/20100101 Firefox/133.0" -O /opt/majorsilence/windowsdesktop-runtime-8-win-x64.exe https://download.visualstudio.microsoft.com/download/pr/27bcdd70-ce64-4049-ba24-2b14f9267729/d4a435e55182ce5424a7204c2cf2b3ea/windowsdesktop-runtime-8.0.11-win-x64.exe \
+RUN wget --user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:133.0) Gecko/20100101 Firefox/133.0" -O /opt/majorsilence/windowsdesktop-runtime-win-x64.exe https://builds.dotnet.microsoft.com/dotnet/WindowsDesktop/9.0.8/windowsdesktop-runtime-9.0.8-win-x64.exe \
     && ls -la /opt/majorsilence \
-    && xvfb-run wine /opt/majorsilence/windowsdesktop-runtime-8-win-x64.exe /quiet /install /norestart \& \
+    && xvfb-run wine /opt/majorsilence/windowsdesktop-runtime-win-x64.exe /quiet /install /norestart \& \
     && sleep 60 \
-    && rm -rf /opt/majorsilence/windowsdesktop-runtime-8-win-x64.exe
+    && rm -rf /opt/majorsilence/windowsdesktop-runtime-win-x64.exe
     
