@@ -33,7 +33,9 @@ RUN mkdir -p /opt/majorsilence && apt update \
 RUN winecfg && wineboot -u \
     && wineserver -k
 
-RUN wget --user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:133.0) Gecko/20100101 Firefox/133.0" -O /opt/majorsilence/windowsdesktop-runtime-win-x64.exe https://builds.dotnet.microsoft.com/dotnet/WindowsDesktop/9.0.8/windowsdesktop-runtime-9.0.8-win-x64.exe \
+RUN wget --user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:133.0) Gecko/20100101 Firefox/133.0" -O /opt/majorsilence/windowsdesktop-runtime-win-x64.exe https://builds.dotnet.microsoft.com/dotnet/WindowsDesktop/10.0.5/windowsdesktop-runtime-10.0.5-win-x64.exe \
+    && filehash="cbb1ad53aecc54264488cc5c0be938991770750209cf4acd383bbe8af57db679f4d5988e6281a6d6a46b4e141db3d3d539ea764250b4ab48871972a610944b40" \
+    && echo "${filehash}  /opt/majorsilence/windowsdesktop-runtime-win-x64.exe" | sha512sum -c - || exit 1 \
     && ls -la /opt/majorsilence \
     && xvfb-run wine /opt/majorsilence/windowsdesktop-runtime-win-x64.exe /quiet /install /norestart \& \
     && sleep 60 \
