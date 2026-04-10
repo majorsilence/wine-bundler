@@ -13,6 +13,7 @@ ARG_APP_MENU=""
 ARG_WINE="^stable-"
 ARG_LOCALE="en_US.UTF-8"
 ARG_ARCH="win32"
+ARG_ENV_VARS=""
 
 NAME_WINE_HOME="wine-home"
 NAME_WINE_PREFIX="wine-prefix"
@@ -58,6 +59,8 @@ Options:
                 (defaults to ${ARG_ARCH})
   -t (cache)    Set specific cache path
                 (defaults to ${APP_CACHE})
+  -e (env)      Set environment variable (KEY=VALUE), can be used multiple times
+                e.g. -e ENABLE_FEATURE_ABC=1 -e FOO=bar
 Description:
 
   Creates macOS application bundle from wine prefix.
@@ -278,6 +281,7 @@ RESOURCES="\$ROOT/../Resources"
 export WINEPREFIX="\$RESOURCES/${NAME_WINE_PREFIX}"
 export WINEARCH="${BUNDLE_ARCH}"
 export LC_ALL="${BUNDLE_LOCALE}"
+${BUNDLE_ENV_VARS}
 
 APP='${BUNDLE_APP}'
 LAUNCHER="\$RESOURCES/${NAME_LAUNCHER}"
@@ -389,7 +393,7 @@ check_and_create_wine_prefix() {
 
 # ...existing code...
 
-while getopts ":hvls:m:r:n:i:p:w:c:a:t:" opt; do
+while getopts ":hvls:m:r:n:i:p:w:c:a:t:e:" opt; do
   case $opt in
     h)  usage; exit 0 ;;
     v)  version; exit 0 ;;
@@ -404,6 +408,7 @@ while getopts ":hvls:m:r:n:i:p:w:c:a:t:" opt; do
     c)  ARG_LOCALE="$OPTARG" ;;
     a)  ARG_ARCH="$OPTARG" ;;
     t)  APP_CACHE="$OPTARG" ;;
+    e)  ARG_ENV_VARS="${ARG_ENV_VARS}export ${OPTARG}"$'\n' ;;
     \?) error "Option -$OPTARG requires an argument." ;;
   esac
 done
@@ -420,6 +425,7 @@ BUNDLE_APP_MENU="$ARG_APP_MENU"
 BUNDLE_APP_PROMPT="$ARG_APP_PROMPT"
 BUNDLE_ARCH="$ARG_ARCH"
 BUNDLE_LOCALE="$ARG_LOCALE"
+BUNDLE_ENV_VARS="$ARG_ENV_VARS"
 # Use cache first
 mkdir -p $APP_CACHE
 BUNDLE_WINE=$(ls "$APP_CACHE" \
